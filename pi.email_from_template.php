@@ -1,4 +1,4 @@
-<?php
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
 =====================================================
@@ -12,69 +12,102 @@ email Michael with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
 
 changelog:
-0.1 - alpha
+0.2 - alpha
 
 =====================================================
 
 */
 
-
-if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
 $plugin_info = array(
 						'pi_name'			=> "RogEE Email-from-Template",
-						'pi_version'		=> "0.1",
+						'pi_version'		=> "0.2",
 						'pi_author'			=> "Michael Rog",
 						'pi_author_url'		=> "http://michaelrog.com/go/ee",
 						'pi_description'	=> "Emails enclosed contents to a provided email address.",
 						'pi_usage'			=> Email_from_template::usage()
 					);
 
+
+/**
+ * Email_from_template Class
+ *
+ */
+
 class Email_from_template {
 
-var $return_data = "";
+	var $return_data = "";
+	
+	var $to = "2010@michaelrog.com" ; 
+	var $from = "test@michaelrog.com" ;
+	var $subject = "Email-from-Template" ;
 
-  function Email_from_template($str = '')
-  {
+	var $echo = "y" ;
 
-    $this->EE =& get_instance();
-    
-    if ($str == '')
-    {
-      $str = $this->EE->TMPL->tagdata;
-    }
-    
-	// assemble variables
-	
-	$todayis = date("l, F j, Y, g:i a") ;
-	
-	$content = "test content." ; // stripcslashes($str) ;
-	$to = "2010@michaelrog.com" ; // stripcslashes($to) ;
-	$from = "test@michaelrog.com" ; // stripcslashes($from) ;
-	$subject = "test" ; // stripcslashes($subject);
-	
-	$ip = getenv("REMOTE_ADDR") ;
-	$httpref = getenv ("HTTP_REFERER") ;
-	$httpagent = getenv ("HTTP_USER_AGENT") ;
-	
-	// format message for mailing
-	
-	$message = "$todayis \n \n
-	content: $content \n \n
-	IP = $ip \n
-	Browser Info: $httpagent \n
-	Referral : $httpref \n
-	";
+	function Email_from_template($str = '')
+	{
 
-	$from_header = "From: $from\r\n";
-	
-	// mail it
-	
-	mail($to, $subject, $message, $from_header);
+	    $this->EE =& get_instance() ;
+
+		/** ---------------------------------------
+		/**  params: fetch / validate / sanitize
+		/** ---------------------------------------*/
+		
+		$this->to = (($to = $this->EE->TMPL->fetch_param('to')) === FALSE) ? $this->to : $to;
+		$this->from = (($from = $this->EE->TMPL->fetch_param('from')) === FALSE) ? $this->from : $from;
+		$this->subject = (($subject = $this->EE->TMPL->fetch_param('subject')) === FALSE) ? $this->subject : $subject;
+		$this->echo = (($echo = $this->EE->TMPL->fetch_param('echo')) === FALSE) ? $this->echo : $echo;
+
+		/*
+		
+		$to = $this->EE->security->xss_clean($this->to) ;
+		$from = $this->EE->security->xss_clean($this->from) ;
+		$subject = $this->EE->security->xss_clean($this->subject) ;
+		
+		$echo = strtolower($this->EE->security->xss_clean($echo)) ;
+		$valid_echo = array('y', 'n');
+		$echo = (in_array($echo, $valid_foo)) ? $foo : '';
+		
+		*/
+
+		/** ---------------------------------------
+		/**  tag data: fetch / sanitize
+		/** ---------------------------------------*/
     
-    // echo enclosed contents to template
+		if ($str == '')
+		{
+			$str = $this->EE->TMPL->tagdata ;
+		}
     
-    $this->return_data = $str;
+   		$tagdata = $this->EE->security->xss_clean($str) ;
+		
+		/** ---------------------------------------
+		/**  Assemble variables
+		/** ---------------------------------------*/		
+		
+		echo $to . " " . $from . " " . $subject . " " . $ip . " " . $httpagent . " " . $tagdata ;
+		
+		$vars = array(
+			'to' => $to,
+			'from' => $from,
+			'subject' => $subject,
+			'ip' => $this->EE->input->ip_address(), // getenv("REMOTE_ADDR"),
+			'httpagent' => $this->EE->input->user_agent() // getenv("HTTP_USER_AGENT")
+		);
+		
+		// format message for mailing
+		
+		$message = $tagdata ;
+		
+		$from_header = "From: $from\r\n";
+		
+		// mail it
+		
+		mail($this->to, $this->subject, $message, $from_header);
+		
+		// echo enclosed contents to template (?)
+		
+				
+		$this->return_data = $str;
 
 	}
 
