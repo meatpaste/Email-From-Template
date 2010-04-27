@@ -1,4 +1,4 @@
 <?php
     $config['name'] = 'RogEE Email-from-Template';
     $config['version'] = '1.0';
-    $config['nsm_addon_updater']['versions_xml'] = 'http://michaelrog.com/go/ee/Email-from-Template/versions.xml';
+    $config['nsm_addon_updater']['versions_xml'] = 'http://bitbucket.org/rogee/rogee-email-from-template/raw/tip/versions.xml';

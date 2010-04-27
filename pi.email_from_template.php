@@ -8,10 +8,13 @@ a plug-in for ExpressionEngine 2
 by Michael Rog
 v1.0
 
-email Michael with questions, feedback, suggestions, bugs, etc.
+Please e-mail me with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
 
-changelog:
+This plugin is compatible with NSM Addon Updater:
+>> http://github.com/newism/nsm.addon_updater.ee_addon
+
+Changelog:
 0.x - alpha
 1.0 - RC (uses EE's built-in Email, Config, and Template classes)
 
