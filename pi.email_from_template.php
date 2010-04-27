@@ -6,13 +6,13 @@
 RogEE Email-from-Template
 a plug-in for ExpressionEngine 2
 by Michael Rog
-v0.1
+v0.4
 
 email Michael with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
 
 changelog:
-0.3 - alpha
+0.x - alpha
 
 =====================================================
 
@@ -20,7 +20,7 @@ changelog:
 
 $plugin_info = array(
 						'pi_name'			=> "RogEE Email-from-Template",
-						'pi_version'		=> "0.3",
+						'pi_version'		=> "0.4",
 						'pi_author'			=> "Michael Rog",
 						'pi_author_url'		=> "http://michaelrog.com/go/ee",
 						'pi_description'	=> "Emails enclosed contents to a provided email address.",
@@ -48,7 +48,7 @@ class Email_from_template {
 	    
 	    $this->to = $this->EE->config->item('webmaster_email') ; 
 		$this->from = $this->EE->config->item('webmaster_email') ;
-		$this->subject = "email from ".$this->EE->uri->uri_string() ;
+		$this->subject = "Email-from-Template: ".$this->EE->uri->uri_string() ;
 		$this->echo_tagdata = TRUE ;
 
 		/** ---------------------------------------
@@ -72,7 +72,7 @@ class Email_from_template {
    		$tagdata = $this->EE->security->xss_clean($str) ;
 		
 		/** ---------------------------------------
-		/**  assemble variables
+		/**  assemble and parse variables
 		/** ---------------------------------------*/
 		
 		$variables = array();
@@ -87,17 +87,23 @@ class Email_from_template {
 		);
 		
 		$variables[] = $single_variables ;
+
+		$message = $this->EE->TMPL->parse_variables($tagdata, $variables) ;
 		
 		/** ---------------------------------------
-		/**  format data & mail the message
+		/**  mail the message
 		/** ---------------------------------------*/
-		
-		$message = $this->EE->TMPL->parse_variables($tagdata, $variables) ;
-
-		$from_header = "From: $from\r\n";
-		
-		mail($to, $subject, $message, $from_header);
 				
+		$this->EE->load->library('email');
+
+		$this->EE->email->initialize() ;
+		$this->EE->email->mailtype = 'text';
+		$this->EE->email->from($from);
+		$this->EE->email->to($to); 
+		$this->EE->email->subject($subject);
+		$this->EE->email->message($message);
+		$this->EE->email->Send();
+		
 		/** ---------------------------------------
 		/**  return data to template
 		/** ---------------------------------------*/
@@ -116,14 +122,14 @@ class Email_from_template {
 
 	This plugin emails the enclosed content to a provided email address.
 	
-	Parameters:
+	PARAMETERS:
 	
-	to - destination email address (defaults to site webmaster)
-	from - sender email address (defaults to site webmaster)
-	subject - email subject line (defaults to template URI)
+	to - destination email address (default: site webmaster)
+	from - sender email address (default: site webmaster)
+	subject - email subject line (default: template URI)
 	echo - Set to "off" if you don't want to display the tag contents in the template.
 	
-	Variables:
+	VARIABLES:
 	
 	{to}
 	{from}
@@ -132,11 +138,11 @@ class Email_from_template {
 	{httpagent}
 	{uri_string}
 	
-	Example usage:
+	EXAMPLE USAGE:
 	
 	{exp:email-from-template to="admin@ee.com" from="server@ee.com" subject="Hello!" echo="off"}
 
-		This tag content is being viewed at {ip} by {httpagent}. Sending notification to {to}.
+		This tag content is being viewed at {uri_string} by {httpagent}. Sending notification to {to}.
 
 	{/exp:email-from-template}	
 
