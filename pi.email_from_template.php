@@ -24,7 +24,7 @@ Changelog:
 
 $plugin_info = array(
 						'pi_name'			=> "RogEE Email-from-Template",
-						'pi_version'		=> "1.0.0,
+						'pi_version'		=> "1.0.0",
 						'pi_author'			=> "Michael Rog",
 						'pi_author_url'		=> "http://michaelrog.com/go/ee",
 						'pi_description'	=> "Emails enclosed contents to a provided email address.",
