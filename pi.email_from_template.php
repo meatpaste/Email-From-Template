@@ -28,7 +28,6 @@ $plugin_info = array(
 						'pi_usage'			=> Email_from_template::usage()
 					);
 
-
 /**
  * Email_from_template Class
  *
