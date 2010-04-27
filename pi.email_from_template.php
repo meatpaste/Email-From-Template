@@ -6,13 +6,14 @@
 RogEE Email-from-Template
 a plug-in for ExpressionEngine 2
 by Michael Rog
-v0.4
+v1.0
 
 email Michael with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
 
 changelog:
 0.x - alpha
+1.0 - RC (uses EE's built-in Email, Config, and Template classes)
 
 =====================================================
 
@@ -20,7 +21,7 @@ changelog:
 
 $plugin_info = array(
 						'pi_name'			=> "RogEE Email-from-Template",
-						'pi_version'		=> "0.4",
+						'pi_version'		=> "1.0",
 						'pi_author'			=> "Michael Rog",
 						'pi_author_url'		=> "http://michaelrog.com/go/ee",
 						'pi_description'	=> "Emails enclosed contents to a provided email address.",
@@ -95,9 +96,7 @@ class Email_from_template {
 		/** ---------------------------------------*/
 				
 		$this->EE->load->library('email');
-
 		$this->EE->email->initialize() ;
-		$this->EE->email->mailtype = 'text';
 		$this->EE->email->from($from);
 		$this->EE->email->to($to); 
 		$this->EE->email->subject($subject);
@@ -141,7 +140,7 @@ class Email_from_template {
 	EXAMPLE USAGE:
 	
 	{exp:email-from-template to="admin@ee.com" from="server@ee.com" subject="Hello!" echo="off"}
-
+ 
 		This tag content is being viewed at {uri_string} by {httpagent}. Sending notification to {to}.
 
 	{/exp:email-from-template}	
