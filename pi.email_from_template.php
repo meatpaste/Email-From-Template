@@ -46,8 +46,8 @@ class Email_from_template {
 		/**  defaults
 		/** ---------------------------------------*/
 	    
-	    $this->to = "2010@michaelrog.com" ; 
-		$this->from = "test@michaelrog.com" ;
+	    $this->to = $this->EE->config->item('webmaster_email') ; 
+		$this->from = $this->EE->config->item('webmaster_email') ;
 		$this->subject = "email from ".$this->EE->uri->uri_string() ;
 		$this->echo_tagdata = TRUE ;
 
