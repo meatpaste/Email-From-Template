@@ -6,7 +6,7 @@
 RogEE Email-from-Template
 a plug-in for ExpressionEngine 2
 by Michael Rog
-v1.0
+v1.0.0
 
 Please e-mail me with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
@@ -24,7 +24,7 @@ Changelog:
 
 $plugin_info = array(
 						'pi_name'			=> "RogEE Email-from-Template",
-						'pi_version'		=> "1.0",
+						'pi_version'		=> "1.0.0,
 						'pi_author'			=> "Michael Rog",
 						'pi_author_url'		=> "http://michaelrog.com/go/ee",
 						'pi_description'	=> "Emails enclosed contents to a provided email address.",
