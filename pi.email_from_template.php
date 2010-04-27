@@ -35,21 +35,21 @@ $plugin_info = array(
 
 class Email_from_template {
 
-	/** ---------------------------------------
-	/**  defaults
-	/** ---------------------------------------*/
-
 	var $return_data = "";
-	
-	var $to = "2010@michaelrog.com" ; 
-	var $from = "test@michaelrog.com" ;
-	var $subject = "Email-from-Template" ;
-	var $echo_tagdata = TRUE ;
 
 	function Email_from_template($str = '')
 	{
 
 	    $this->EE =& get_instance() ;
+
+		/** ---------------------------------------
+		/**  defaults
+		/** ---------------------------------------*/
+	    
+	    $this->to = "2010@michaelrog.com" ; 
+		$this->from = "test@michaelrog.com" ;
+		$this->subject = "email from ".$this->EE->uri->uri_string() ;
+		$this->echo_tagdata = TRUE ;
 
 		/** ---------------------------------------
 		/**  params: fetch / sanitize / validate
@@ -69,7 +69,7 @@ class Email_from_template {
 			$str = $this->EE->TMPL->tagdata ;
 		}
     
-   		$tagdata = $str ; // $this->EE->security->xss_clean($str) ;
+   		$tagdata = $this->EE->security->xss_clean($str) ;
 		
 		/** ---------------------------------------
 		/**  assemble variables
@@ -81,8 +81,9 @@ class Email_from_template {
 			'to' => $to,
 			'from' => $from,
 			'subject' => $subject,
-			'ip' => $this->EE->input->ip_address(), // getenv("REMOTE_ADDR"),
-			'httpagent' => $this->EE->input->user_agent() // getenv("HTTP_USER_AGENT")
+			'ip' => $this->EE->input->ip_address(),
+			'httpagent' => $this->EE->input->user_agent(),
+			'uri_string' => $this->EE->uri->uri_string()
 		);
 		
 		$variables[] = $single_variables ;
@@ -92,7 +93,6 @@ class Email_from_template {
 		/** ---------------------------------------*/
 		
 		$message = $this->EE->TMPL->parse_variables($tagdata, $variables) ;
-		// $message = $tagdata ;
 
 		$from_header = "From: $from\r\n";
 		
@@ -103,7 +103,6 @@ class Email_from_template {
 		/** ---------------------------------------*/
 		
 		$this->return_data = ($echo_tagdata) ? $message : "" ;
-		// $this->return_data = "TO: $to -- FROM_HEADER: $from_header -- SUBJECT: $subject -- MESSAGE: $message -- ECHO_TAGDATA: $echo_tagdata" ;
 
 	}
 
@@ -131,12 +130,13 @@ class Email_from_template {
 	{subject}
 	{ip}
 	{httpagent}
+	{uri_string}
 	
 	Example usage:
 	
 	{exp:email-from-template to="admin@ee.com" from="server@ee.com" subject="Hello!" echo="off"}
 
-		This tag contents is being viewed at {ip} by {httpagent}. Sending notification to {to}.
+		This tag content is being viewed at {ip} by {httpagent}. Sending notification to {to}.
 
 	{/exp:email-from-template}	
 
