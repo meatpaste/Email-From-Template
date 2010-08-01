@@ -10,6 +10,7 @@ v1.0.1
 
 Please e-mail me with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
+>> http://michaelrog.com/ee
 
 This plugin is compatible with NSM Addon Updater:
 >> http://github.com/newism/nsm.addon_updater.ee_addon
@@ -26,7 +27,7 @@ $plugin_info = array(
 						'pi_name'			=> "RogEE Email-from-Template",
 						'pi_version'		=> "1.0.1",
 						'pi_author'			=> "Michael Rog",
-						'pi_author_url'		=> "http://michaelrog.com/go/ee",
+						'pi_author_url'		=> "http://michaelrog.com/ee",
 						'pi_description'	=> "Emails enclosed contents to a provided email address.",
 						'pi_usage'			=> Email_from_template::usage()
 					);
