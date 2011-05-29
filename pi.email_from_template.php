@@ -6,7 +6,7 @@
 RogEE Email-from-Template
 a plug-in for ExpressionEngine 2
 by Michael Rog
-v1.0.1
+v1.2.0
 
 Please e-mail me with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
@@ -18,6 +18,7 @@ This plugin is compatible with NSM Addon Updater:
 Changelog:
 0.x - alpha
 1.0 - RC (uses EE's built-in Email, Config, and Template classes)
+1.2 - added global variables, removed XSS filter from subject line param because it was breaking entities
 
 =====================================================
 
@@ -25,7 +26,7 @@ Changelog:
 
 $plugin_info = array(
 						'pi_name'			=> "RogEE Email-from-Template",
-						'pi_version'		=> "1.0.1",
+						'pi_version'		=> "1.2.0",
 						'pi_author'			=> "Michael Rog",
 						'pi_author_url'		=> "http://michaelrog.com/ee",
 						'pi_description'	=> "Emails enclosed contents to a provided email address.",
@@ -55,8 +56,10 @@ class Email_from_template {
 		// params: fetch / sanitize / validate
 		
 		$to = (($to = $this->EE->TMPL->fetch_param('to')) === FALSE) ? $this->to : $this->EE->security->xss_clean($to);
+		$cc = (($cc = $this->EE->TMPL->fetch_param('cc')) === FALSE) ? $this->from : $this->EE->security->xss_clean($cc);
+		$bcc = (($bcc = $this->EE->TMPL->fetch_param('bcc')) === FALSE) ? $this->from : $this->EE->security->xss_clean($bcc);
 		$from = (($from = $this->EE->TMPL->fetch_param('from')) === FALSE) ? $this->from : $this->EE->security->xss_clean($from);
-		$subject = (($subject = $this->EE->TMPL->fetch_param('subject')) === FALSE) ? $this->subject : $this->EE->security->xss_clean($subject);
+		$subject = (($subject = $this->EE->TMPL->fetch_param('subject')) === FALSE) ? $this->subject : $subject;
 		$echo_tagdata = (strtolower($this->EE->TMPL->fetch_param('echo')) == "no") ? FALSE : $this->echo_tagdata ;
 		
 		// tag data: fetch / sanitize
@@ -81,16 +84,28 @@ class Email_from_template {
 			'uri_string' => $this->EE->uri->uri_string()
 		);
 		
-		$variables[] = $single_variables ;
+		// Checks to see if there are any global variables set.
+		if(count($GLOBALS['assign_to_config']['global_vars']) > 0)
+		{
+		    // Loops through each global variable
+		    foreach($GLOBALS['assign_to_config']['global_vars'] as $gkey => $gvar)
+		    {
+		        $single_variables[$gkey] = $gvar;
+		    }
+		}
+
+		$variables[] = $single_variables;
 
 		$message = $this->EE->TMPL->parse_variables($tagdata, $variables) ;
-		
+
 		// mail the message
 				
 		$this->EE->load->library('email');
 		$this->EE->email->initialize() ;
 		$this->EE->email->from($from);
 		$this->EE->email->to($to); 
+		$this->EE->email->cc($cc); 
+		$this->EE->email->bcc($bcc); 
 		$this->EE->email->subject($subject);
 		$this->EE->email->message($message);
 		$this->EE->email->Send();
