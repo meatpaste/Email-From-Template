@@ -18,7 +18,7 @@ This plugin is compatible with NSM Addon Updater:
 Changelog:
 0.x - alpha
 1.0 - RC (uses EE's built-in Email, Config, and Template classes)
-1.2 - added global variables, removed XSS filter from subject line param because it was breaking entities
+1.2 - added global variables, removed XSS filter from subject line param and message body because it was breaking entities
 
 =====================================================
 
@@ -48,12 +48,12 @@ class Email_from_template {
 
 		// defaults
 	    
-	    $this->to = $this->EE->config->item('webmaster_email') ;
+	    $this->to = $this->EE->config->item('webmaster_email');
 	    $this->cc = "";
 	    $this->bcc = "";
-		$this->from = $this->EE->config->item('webmaster_email') ;
-		$this->subject = "Email-from-Template: ".$this->EE->uri->uri_string() ;
-		$this->echo_tagdata = TRUE ;
+		$this->from = $this->EE->config->item('webmaster_email');
+		$this->subject = "Email-from-Template: ".$this->EE->uri->uri_string();
+		$this->echo_tagdata = TRUE;
 
 		// params: fetch / sanitize / validate
 		
@@ -70,8 +70,8 @@ class Email_from_template {
 		{
 			$str = $this->EE->TMPL->tagdata ;
 		}
-    
-   		$tagdata = $this->EE->security->xss_clean($str) ;
+
+		$tagdata = $str;
 		
 		// assemble and parse variables
 		
