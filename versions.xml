@@ -57,7 +57,7 @@
             <pubDate>Sun, 29 May 2011 02:25:00 +0200</pubDate>
             <description><![CDATA[
                 <ul>
-                    <li>added support for global variables</li>
+                    <li>added CC and BCC params</li>
                     <li>removed XSS filter from subject line param, in hopes that it'll stop breaking on HTML entities</li>
                 </ul>
             ]]>

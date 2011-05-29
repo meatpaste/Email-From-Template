@@ -48,7 +48,9 @@ class Email_from_template {
 
 		// defaults
 	    
-	    $this->to = $this->EE->config->item('webmaster_email') ; 
+	    $this->to = $this->EE->config->item('webmaster_email') ;
+	    $this->cc = "";
+	    $this->bcc = "";
 		$this->from = $this->EE->config->item('webmaster_email') ;
 		$this->subject = "Email-from-Template: ".$this->EE->uri->uri_string() ;
 		$this->echo_tagdata = TRUE ;
@@ -77,22 +79,13 @@ class Email_from_template {
 		
 		$single_variables = array(
 			'to' => $to,
+			'cc' => $cc,
 			'from' => $from,
 			'subject' => $subject,
 			'ip' => $this->EE->input->ip_address(),
 			'httpagent' => $this->EE->input->user_agent(),
 			'uri_string' => $this->EE->uri->uri_string()
 		);
-		
-		// Checks to see if there are any global variables set.
-		if(count($GLOBALS['assign_to_config']['global_vars']) > 0)
-		{
-		    // Loops through each global variable
-		    foreach($GLOBALS['assign_to_config']['global_vars'] as $gkey => $gvar)
-		    {
-		        $single_variables[$gkey] = $gvar;
-		    }
-		}
 
 		$variables[] = $single_variables;
 
@@ -131,6 +124,8 @@ class Email_from_template {
 		PARAMETERS:
 		
 		to - destination email address (default: site webmaster)
+		cc - email addresses to carbon copy
+		bcc - email addresses to blind carbon copy
 		from - sender email address (default: site webmaster)
 		subject - email subject line (default: template URI)
 		echo - Set to "off" if you don't want to display the tag contents in the template.
