@@ -6,7 +6,7 @@
 RogEE Email-from-Template
 a plug-in for ExpressionEngine 2
 by Michael Rog
-v1.2.0
+v1.3.0
 
 Please e-mail me with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
@@ -15,23 +15,18 @@ Please e-mail me with questions, feedback, suggestions, bugs, etc.
 This plugin is compatible with NSM Addon Updater:
 >> http://github.com/newism/nsm.addon_updater.ee_addon
 
-Changelog:
-0.x - alpha
-1.0 - RC (uses EE's built-in Email, Config, and Template classes)
-1.2 - added global variables, removed XSS filter from subject line param and message body because it was breaking entities
-
 =====================================================
 
 */
 
 $plugin_info = array(
-						'pi_name'			=> "RogEE Email-from-Template",
-						'pi_version'		=> "1.2.0",
-						'pi_author'			=> "Michael Rog",
-						'pi_author_url'		=> "http://michaelrog.com/ee",
-						'pi_description'	=> "Emails enclosed contents to a provided email address.",
-						'pi_usage'			=> Email_from_template::usage()
-					);
+	'pi_name'			=> "RogEE Email-from-Template",
+	'pi_version'		=> "1.2.0",
+	'pi_author'			=> "Michael Rog",
+	'pi_author_url'		=> "http://michaelrog.com/ee",
+	'pi_description'	=> "Emails enclosed contents to a provided email address.",
+	'pi_usage'			=> Email_from_template::usage()
+);
 
 /** ---------------------------------------
 /**  Email_from_template class
@@ -90,6 +85,24 @@ class Email_from_template {
 		$variables[] = $single_variables;
 
 		$message = $this->EE->TMPL->parse_variables($tagdata, $variables) ;
+		
+		// parse global variables
+		
+		$message = $this->EE->TMPL->parse_globals($message);
+		$subject = $this->EE->TMPL->parse_globals($subject);
+		
+		// fix HTML entities in the subject line
+		
+		$subject = html_entity_decode($subject);
+
+		// template debugging
+		
+		$this->EE->TMPL->log_item('Sending email from template: ' . $to);
+		$this->EE->TMPL->log_item('TO: ' . $to);
+		$this->EE->TMPL->log_item('CC: ' . $cc);
+		$this->EE->TMPL->log_item('BCC: ' . $bcc);
+		$this->EE->TMPL->log_item('FROM: ' . $from);
+		$this->EE->TMPL->log_item('SUBJECT: ' . $subject);
 
 		// mail the message
 				
@@ -102,6 +115,13 @@ class Email_from_template {
 		$this->EE->email->subject($subject);
 		$this->EE->email->message($message);
 		$this->EE->email->Send();
+
+		// more template debugging
+
+		$this->EE->TMPL->log_item('Email sent!');
+		
+		if (! $echo_tagdata) { $this->EE->TMPL->log_item('Echo is off. Outputting nothing to template.'); }
+		else { $this->EE->TMPL->log_item('Echo is on. Repeating message to template.'); }
 		
 		// return data to template
 		
@@ -141,11 +161,15 @@ class Email_from_template {
 		
 		EXAMPLE USAGE:
 		
-		{exp:email-from-template to="admin@ee.com" from="server@ee.com" subject="Hello!" echo="off"}
-	 
-			This tag content is being viewed at {uri_string} by {httpagent}. Sending notification to {to}.
+		{exp:email_from_template to="admin@ee.com" from="server@ee.com" subject="Hello!" echo="off"}
+
+			This tag content is being viewed at {uri_string}. Sending notification to {to}!
+
+		{/exp:email_from_template}	
 	
-		{/exp:email-from-template}	
+		USING WITH OTHER PLUGINS AND TAGS:
+		
+		When you want to email the output of other tags, put Email_from_Template INSIDE the other tag and use parse="inward" on the outer tags.
 	
 		<?php
 		$buffer = ob_get_contents();
