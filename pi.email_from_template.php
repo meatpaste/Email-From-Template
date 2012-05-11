@@ -6,7 +6,6 @@
 RogEE Email-from-Template
 a plug-in for ExpressionEngine 2
 by Michael Rog
-v1.3.0
 
 Please e-mail me with questions, feedback, suggestions, bugs, etc.
 >> michael@michaelrog.com
@@ -21,7 +20,7 @@ This plugin is compatible with NSM Addon Updater:
 
 $plugin_info = array(
 	'pi_name'			=> "RogEE Email-from-Template",
-	'pi_version'		=> "1.2.0",
+	'pi_version'		=> "1.4.0",
 	'pi_author'			=> "Michael Rog",
 	'pi_author_url'		=> "http://michaelrog.com/ee",
 	'pi_description'	=> "Emails enclosed contents to a provided email address.",
@@ -53,13 +52,15 @@ class Email_from_template {
 		// params: fetch / sanitize / validate
 		
 		$to = (($to = $this->EE->TMPL->fetch_param('to')) === FALSE) ? $this->to : $this->EE->security->xss_clean($to);
-		$cc = (($cc = $this->EE->TMPL->fetch_param('cc')) === FALSE) ? $this->from : $this->EE->security->xss_clean($cc);
-		$bcc = (($bcc = $this->EE->TMPL->fetch_param('bcc')) === FALSE) ? $this->from : $this->EE->security->xss_clean($bcc);
+		$cc = (($cc = $this->EE->TMPL->fetch_param('cc')) === FALSE) ? FALSE : $this->EE->security->xss_clean($cc);
+		$bcc = (($bcc = $this->EE->TMPL->fetch_param('bcc')) === FALSE) ? FALSE : $this->EE->security->xss_clean($bcc);
 		$from = (($from = $this->EE->TMPL->fetch_param('from')) === FALSE) ? $this->from : $this->EE->security->xss_clean($from);
 		$subject = (($subject = $this->EE->TMPL->fetch_param('subject')) === FALSE) ? $this->subject : $subject;
-		$echo_tagdata = (strtolower($this->EE->TMPL->fetch_param('echo')) == "no") ? FALSE : $this->echo_tagdata ;
+		$echo_tagdata = (strtolower($this->EE->TMPL->fetch_param('echo')) == "no" || strtolower($this->EE->TMPL->fetch_param('echo')) == "off") ? FALSE : TRUE ;
+		$decode_subject_entities = (strtolower($this->EE->TMPL->fetch_param('decode_subject_entities')) == "no") ? FALSE : TRUE ;
+		$decode_message_entities = (strtolower($this->EE->TMPL->fetch_param('decode_message_entities')) == "no") ? FALSE : TRUE ;
 		
-		// tag data: fetch / sanitize
+		// fetch tag data
     
 		if ($str == '')
 		{
@@ -68,7 +69,7 @@ class Email_from_template {
 
 		$tagdata = $str;
 		
-		// assemble and parse variables
+		// assemble and parse template variables
 		
 		$variables = array();
 		
@@ -88,21 +89,24 @@ class Email_from_template {
 		
 		// parse global variables
 		
-		$message = $this->EE->TMPL->parse_globals($message);
 		$subject = $this->EE->TMPL->parse_globals($subject);
-		
-		// fix HTML entities in the subject line
-		
-		$subject = html_entity_decode($subject);
+		$message = $this->EE->TMPL->parse_globals($message);
 
 		// template debugging
 		
-		$this->EE->TMPL->log_item('Sending email from template: ' . $to);
+		$this->EE->TMPL->log_item('Sending email from template...');
 		$this->EE->TMPL->log_item('TO: ' . $to);
-		$this->EE->TMPL->log_item('CC: ' . $cc);
-		$this->EE->TMPL->log_item('BCC: ' . $bcc);
+		$this->EE->TMPL->log_item('CC: ' . ($cc ? $cc : '(none)'));
+		$this->EE->TMPL->log_item('BCC: ' . ($bcc ? $bcc : '(none)'));
 		$this->EE->TMPL->log_item('FROM: ' . $from);
 		$this->EE->TMPL->log_item('SUBJECT: ' . $subject);
+		if ($decode_subject_entities) { $this->EE->TMPL->log_item('Decoding HTML entities in subject...'); }
+		if ($decode_message_entities) { $this->EE->TMPL->log_item('Decoding HTML entities in message...'); }		
+		
+		// decode HTML entities
+		
+		$subject = $decode_subject_entities ? html_entity_decode($subject) : $subject;
+		$message = $decode_message_entities ? html_entity_decode($message) : $message;
 
 		// mail the message
 				
@@ -110,8 +114,8 @@ class Email_from_template {
 		$this->EE->email->initialize() ;
 		$this->EE->email->from($from);
 		$this->EE->email->to($to); 
-		$this->EE->email->cc($cc); 
-		$this->EE->email->bcc($bcc); 
+		$this->EE->email->cc($cc);
+		$this->EE->email->bcc($bcc);
 		$this->EE->email->subject($subject);
 		$this->EE->email->message($message);
 		$this->EE->email->Send();
@@ -149,6 +153,8 @@ class Email_from_template {
 		from - sender email address (default: site webmaster)
 		subject - email subject line (default: template URI)
 		echo - Set to "off" if you don't want to display the tag contents in the template.
+		decode_subject_entities - Set to "no" if you don't want to parse the HTML entities in the subject line.
+		decode_message_entities - Set to "no" if you don't want to parse the HTML entities in the message text.
 		
 		VARIABLES:
 		
